@@ -1,7 +1,9 @@
 from flask import Flask
-from flask import render_template,request
+from flask import render_template,request,redirect
 
 from flaskext.mysql import MySQL
+
+from datetime import datetime
 
 app = Flask(__name__)
 mysql = MySQL()
@@ -11,17 +13,32 @@ app.config['MYSQL_DATABASE_PASSWORD']=''
 app.config['MYSQL_DATABASE_BD']='cac_actividad_empleados'
 mysql.init_app(app)
 
-
+def forData(x):
+	for data in x:
+		print(data)
+	
 
 
 @app.route('/')
 def index():
-	sql = ""
+	sql = "SELECT * FROM `cac_actividad_empleados`.`empleados`;"	
 	conn = mysql.connect()
 	cursor = conn.cursor()
-	# cursor.execute(sql)
+	cursor.execute(sql)
+	empleados=cursor.fetchall()
+	forData(empleados)
 	conn.commit()
-	return render_template('empleados/index.html') 
+
+	return render_template('empleados/index.html', empleados=empleados)
+
+
+@app.route('/destroy/<int:id>')
+def destroy(id):
+	conn = mysql.connect()
+	cursor = conn.cursor()
+	cursor.execute("DELETE FROM `cac_actividad_empleados`.`empleados` WHERE id=%s", (id))
+	conn.commit()
+	return redirect('/')
 
 @app.route('/create')
 def create():
@@ -29,13 +46,30 @@ def create():
 
 @app.route('/store', methods=['POST'])
 def storage():
-	sql = "INSERT INTO `sistema`.`empleados` (`id`, `nombre`, `correo`, `foto`) VALUES (NULL, 'Juan Pablo', 'juanpablo@gmail.com', 'juanpablo.jpg');"
+	_nombre=request.form['txtNombre']
+	_correo=request.form['txtCorreo']
+
+	_foto=request.files['txtFoto']
+	now= datetime.now()
+	tiempo= now.strftime("%Y%H%M%S")
+	if _foto.filename!='':
+		nuevoNombreFoto=tiempo+_foto.filename
+		_foto.save("uploads/"+nuevoNombreFoto)
+
+
+	sql = "INSERT INTO `cac_actividad_empleados`.`empleados` (`id`, `nombre`, `correo`, `foto`) VALUES (NULL, %s, %s, %s);"
+	datos=(_nombre,_correo,nuevoNombreFoto)
+
 
 	conn = mysql.connect()
 	cursor = conn.cursor()
-	cursor.execute(sql)
+	cursor.execute(sql,datos)
 	conn.commit()
-	return render_template('empleados/index.htm')
+
+	return render_template('empleados/index.html')
+
+
+
 
 if __name__ == '__main__':
 	app.run(debug=True)

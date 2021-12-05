@@ -1,16 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
-		integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-	
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-	<title>hola flask!</title>
-</head>
-<body>
-	<table class="table table-light">
+{% include 'header.html' %}
+<br>
+
+<a href="{{url_for('create')}}" class="btn btn-success">
+	Ingresar empleados
+</a>
+<br>
+<br>
+	<table class="table table-light align-middle">
 		<thead class="thead-light">
 			<tr>
 				<th>#</th>
@@ -23,15 +19,21 @@
 			<tbody>
 				{% for empleado in empleados %}
 				<tr>
+
 					<td>{{empleado[0]}}</td>
-					<td>{{empleado[3]}}</td>
+					<td>
+					Foto:
+						
+ 						<img class="imgthumbnail" width="100" src="uploads/{{empleado[3]}}" alt="">
+ 					</td>
 					<td>{{empleado[1]}}</td>
 					<td>{{empleado[2]}}</td>
-					<td><a href="/edit/{{empleado[0]}}">Editar</a> | 
-					<a href="/destroy/{{empleado[0]}}">Eliminar<a></td>
+					<td>
+						<a class="btn btn-warning" href="/edit/{{empleado[0]}}">Editar</a> |
+				 		<a class="btn btn-danger" onclick="return confirm('¿Desea borrar al empleado?')" href="/destroy/{{empleado[0]}}">Eliminar</a>
+					</td>
 				</tr>
 				{% endfor %}
 			</tbody>
 	</table>
-</body>
-</html>
+{% include 'footer.html' %}
